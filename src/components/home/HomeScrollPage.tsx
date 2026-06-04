@@ -10,6 +10,7 @@ import {
   useScrollToCategory,
 } from "@/components/menu/MenuSections";
 import { SubNav } from "@/components/layout/SubNav";
+import { OfflineNotice } from "@/components/ui/OfflineNotice";
 import { ScrollHint } from "@/components/ui/ScrollHint";
 import type { MenuCategory, MenuGroup } from "@/lib/types";
 import { designTokens } from "@/lib/design-tokens";
@@ -17,9 +18,14 @@ import { designTokens } from "@/lib/design-tokens";
 interface HomeScrollPageProps {
   categories: MenuCategory[];
   groups: MenuGroup[];
+  isOffline?: boolean;
 }
 
-export function HomeScrollPage({ categories, groups }: HomeScrollPageProps) {
+export function HomeScrollPage({
+  categories,
+  groups,
+  isOffline = false,
+}: HomeScrollPageProps) {
   const [stickyVisible, setStickyVisible] = useState(false);
   const [activeCategory, setActiveCategory] = useState(categories[0]?.id ?? "");
   const menuRef = useRef<HTMLElement>(null);
@@ -74,6 +80,7 @@ export function HomeScrollPage({ categories, groups }: HomeScrollPageProps) {
       className="mx-auto min-h-screen w-full"
       style={{ maxWidth: designTokens.layout.maxWidth }}
     >
+      {isOffline ? <OfflineNotice /> : null}
       <StickyAppChrome visible={stickyVisible} subNav={subNav} />
 
       <div className="flex min-h-dvh flex-col bg-white">

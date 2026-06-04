@@ -6,10 +6,10 @@ export const revalidate = 300;
 export const dynamic = "force-dynamic";
 
 export default async function EventsPage() {
-  const { categories, items } = await getEventsData();
+  const { categories, items, isOffline } = await getEventsData();
 
   return (
-    <AppShell>
+    <AppShell isOffline={isOffline}>
       <EventsPageContent categories={categories} items={items} />
     </AppShell>
   );

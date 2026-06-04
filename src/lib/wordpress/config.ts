@@ -1,7 +1,7 @@
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
 const siteUrl = trimTrailingSlash(
-  process.env.WP_SITE_URL ?? "https://nahancafe.ir/nahanadmin",
+  process.env.WP_SITE_URL ?? "https://www.nahancafe.ir/nahanadmin",
 );
 
 export const wpConfig = {
@@ -26,9 +26,8 @@ export const wpConfig = {
     consumerSecret: process.env.WC_CONSUMER_SECRET,
   },
 
-  useStaticFallback:
-    process.env.WP_USE_STATIC_FALLBACK === "true" ||
-    process.env.NODE_ENV === "development",
+  /** بدون تماس با API؛ فقط دادهٔ نمونه با پرچم آفلاین */
+  skipWordPressApi: process.env.WP_USE_STATIC_FALLBACK === "true",
 } as const;
 
 export function getWpRestUrl(path: string): string {

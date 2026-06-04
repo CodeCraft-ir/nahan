@@ -6,10 +6,10 @@ export const revalidate = 300;
 export const dynamic = "force-dynamic";
 
 export default async function GalleryPage() {
-  const items = await getGalleryData();
+  const { items, isOffline } = await getGalleryData();
 
   return (
-    <AppShell>
+    <AppShell isOffline={isOffline}>
       <GalleryGrid items={items} />
     </AppShell>
   );
