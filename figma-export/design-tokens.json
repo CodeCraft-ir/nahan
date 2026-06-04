@@ -1,0 +1,30 @@
+{
+  "header": {
+    "prelude": "fig-kiwi",
+    "version": 106
+  },
+  "nodeCount": 760,
+  "imageCount": 36,
+  "frames": [],
+  "texts": [],
+  "colors": [
+    "#ffffff",
+    "#eeeeee",
+    "#000000",
+    "#1da1f2",
+    "#ea4c89",
+    "#141414",
+    "#d9d9d9",
+    "#8c0a0a",
+    "#fcae18",
+    "#ff0000",
+    "#006b07",
+    "#f4a817",
+    "#94a3b8",
+    "#ffb100",
+    "#9747ff",
+    "#a20000",
+    "#cce1cd"
+  ],
+  "imageRefs": []
+}

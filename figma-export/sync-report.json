@@ -1,0 +1,23 @@
+{
+  "syncedAt": "2026-06-04T10:05:59.738Z",
+  "sources": {
+    "figFile": false,
+    "pdfs": [
+      {
+        "file": "Android Compact - 2.pdf",
+        "exists": false
+      },
+      {
+        "file": "Android Compact - 8.pdf",
+        "exists": false
+      },
+      {
+        "file": "Android Compact - 9.pdf",
+        "exists": false
+      }
+    ],
+    "figmaApi": null
+  },
+  "localFig": null,
+  "note": "Narhan Android Compact screens are in PDF exports. The bundled .fig is a partial community template."
+}
