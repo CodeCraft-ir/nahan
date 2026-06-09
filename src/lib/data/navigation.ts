@@ -5,7 +5,7 @@ export const SITE_ADDRESS_FA =
 export const SITE_NAME_EN = "Nahan | Café-gallery";
 
 export const MAIN_TABS: { id: MainTabId; label: string; href: string }[] = [
-  { id: "menu", label: "منو", href: "/#menu" },
+  { id: "menu", label: "منو", href: "/menu" },
   { id: "gallery", label: "گالری", href: "/gallery" },
   { id: "events", label: "رویداد", href: "/events" },
 ];

@@ -1,6 +1,7 @@
 import { MainTabs } from "@/components/layout/MainTabs";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { OfflineNotice } from "@/components/ui/OfflineNotice";
+import { InstallAppButton } from "@/components/ui/InstallAppButton";
 import { designTokens } from "@/lib/design-tokens";
 
 interface AppShellProps {
@@ -18,6 +19,7 @@ export function AppShell({ children, isOffline = false }: AppShellProps) {
       <SiteHeader />
       <MainTabs />
       <main>{children}</main>
+      <InstallAppButton />
     </div>
   );
 }

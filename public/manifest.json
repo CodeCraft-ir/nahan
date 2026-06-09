@@ -1,0 +1,38 @@
+{
+  "name": "نهان | کافه گالری",
+  "short_name": "نهان",
+  "description": "نهان کافه گالری — منو، گالری و رویدادها",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#2a2a2a",
+  "theme_color": "#2a2a2a",
+  "lang": "fa",
+  "dir": "rtl",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/figma/screens/Android Compact - 2.pdf.png",
+      "sizes": "412x917",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "صفحه اصلی نهان"
+    }
+  ],
+  "categories": ["food", "lifestyle"],
+  "prefer_related_applications": false
+}

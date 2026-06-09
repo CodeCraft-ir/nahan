@@ -7,13 +7,22 @@ import type { MenuGroup } from "@/lib/types";
 export const MENU_STICKY_OFFSET = 188;
 export const SCROLL_LOCK_MS = 650;
 
+export function getStickyHeaderHeight(): number {
+  if (typeof document === "undefined") return MENU_STICKY_OFFSET;
+  const header = document.querySelector("header[aria-hidden]") as HTMLElement | null
+    ?? document.querySelector(".fixed.inset-x-0.top-0") as HTMLElement | null;
+  if (header) return header.getBoundingClientRect().height;
+  return MENU_STICKY_OFFSET;
+}
+
 export function scrollToElementWithOffset(
   el: HTMLElement,
   scrollingRef: React.MutableRefObject<boolean>,
-  offset = MENU_STICKY_OFFSET,
+  offset?: number,
 ) {
+  const resolvedOffset = offset ?? getStickyHeaderHeight() + 8;
   scrollingRef.current = true;
-  const top = el.getBoundingClientRect().top + window.scrollY - offset;
+  const top = el.getBoundingClientRect().top + window.scrollY - resolvedOffset;
   window.scrollTo({ top, behavior: "smooth" });
   window.setTimeout(() => {
     scrollingRef.current = false;
@@ -25,11 +34,12 @@ export function getActiveCategoryFromScroll(
   sectionRefs: Record<string, HTMLElement | null>,
   categoryIds: string[],
 ): string {
+  const offset = getStickyHeaderHeight() + 8;
   let activeId = categoryIds[0];
   for (const id of categoryIds) {
     const el = sectionRefs[id];
     if (!el) continue;
-    if (el.getBoundingClientRect().top <= MENU_STICKY_OFFSET + 4) {
+    if (el.getBoundingClientRect().top <= offset + 4) {
       activeId = id;
     }
   }
@@ -79,7 +89,7 @@ export function MenuSections({
           ref={(el) => {
             sectionRefs.current[category.id] = el;
           }}
-          className="scroll-mt-[188px]"
+          className="scroll-mt-[196px]"
         >
           {items.length > 0 ? (
             items.map((item) => <MenuItemRow key={item.id} item={item} />)

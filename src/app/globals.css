@@ -47,3 +47,29 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+
+/* Add this to globals.css @layer or at end of file */
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+/* Subtle pulse for skeleton items */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}

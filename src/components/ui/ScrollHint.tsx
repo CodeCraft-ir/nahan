@@ -1,15 +1,16 @@
 "use client";
 
-interface ScrollHintProps {
-  onScroll?: () => void;
-}
+import Link from "next/link";
+import { useNavLoading } from "@/components/ui/NavLoadingProvider";
 
-export function ScrollHint({ onScroll }: ScrollHintProps) {
+export function ScrollHint() {
+  const { startLoading } = useNavLoading();
+
   return (
     <div className="flex justify-center bg-white pb-8 pt-4">
-      <button
-        type="button"
-        onClick={onScroll}
+      <Link
+        href="/menu"
+        onClick={startLoading}
         className="rounded-full p-2 text-narhan-panel opacity-60 transition hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-narhan-panel/30"
         aria-label="رفتن به منو"
       >
@@ -22,7 +23,7 @@ export function ScrollHint({ onScroll }: ScrollHintProps) {
             strokeLinejoin="round"
           />
         </svg>
-      </button>
+      </Link>
     </div>
   );
 }

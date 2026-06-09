@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { MAIN_TABS } from "@/lib/data/navigation";
 import { designTokens } from "@/lib/design-tokens";
+import { useNavLoading } from "@/components/ui/NavLoadingProvider";
 import type { MainTabId } from "@/lib/types";
 
 function tabFromPath(pathname: string): MainTabId | null {
@@ -15,8 +16,10 @@ function tabFromPath(pathname: string): MainTabId | null {
 
 export function MainTabs() {
   const pathname = usePathname();
+  const router = useRouter();
   const active = tabFromPath(pathname);
   const { spacing, typography } = designTokens;
+  const { startLoading } = useNavLoading();
 
   return (
     <nav
@@ -27,22 +30,31 @@ export function MainTabs() {
       {MAIN_TABS.map((tab) => {
         const isActive = active !== null && tab.id === active;
         return (
-          <Link
+          <button
             key={tab.id}
-            href={tab.href}
+            type="button"
+            onClick={() => {
+              if (!isActive) {
+                startLoading();
+                router.push(tab.href);
+              }
+            }}
             className={`relative pb-3 transition-colors ${
               isActive ? "text-narhan-accent" : "text-white/70 hover:text-white"
             }`}
             style={{
               fontSize: typography.tab.size,
               fontWeight: typography.tab.weight,
+              background: "none",
+              border: "none",
+              cursor: isActive ? "default" : "pointer",
             }}
           >
             {tab.label}
             {isActive && (
               <span className="absolute inset-x-0 -bottom-px h-[2px] bg-narhan-accent" />
             )}
-          </Link>
+          </button>
         );
       })}
     </nav>

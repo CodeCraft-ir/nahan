@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { SITE_ADDRESS_FA, SITE_NAME_EN } from "@/lib/data/navigation";
 import { designTokens } from "@/lib/design-tokens";
@@ -18,7 +19,9 @@ export function SiteHeader({ logoVisible = true }: SiteHeaderProps) {
         paddingRight: spacing.headerPaddingX,
       }}
     >
-      <div
+      <Link
+        href="/"
+        aria-label="صفحه اصلی نهان"
         className={`flex shrink-0 flex-col items-center gap-1 transition-all duration-500 ease-out ${
           logoVisible
             ? "translate-y-0 opacity-100"
@@ -27,10 +30,7 @@ export function SiteHeader({ logoVisible = true }: SiteHeaderProps) {
         style={{ transitionDelay: logoVisible ? "120ms" : "0ms" }}
       >
         <Logo width={41} height={52} />
-        {/* <span className="text-[10px] font-medium leading-tight text-white/80">
-          کافه گالری
-        </span> */}
-      </div>
+      </Link>
 
       <div className="min-w-0 flex-1 text-end">
         <p
