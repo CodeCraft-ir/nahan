@@ -1,14 +1,13 @@
-// sw.js — placed in /public/sw.js
-const CACHE_NAME = "nahan-v1";
+const CACHE_NAME = "narhan-v1";
 const STATIC_ASSETS = [
   "/",
   "/menu",
   "/gallery",
   "/events",
-  "/manifest.json",
   "/icons/logo.svg",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
+  "/fonts/modam/ModamFaNumWeb-Regular.woff2",
+  "/fonts/modam/ModamFaNumWeb-Medium.woff2",
+  "/fonts/modam/ModamFaNumWeb-SemiBold.woff2",
 ];
 
 self.addEventListener("install", (event) => {
@@ -22,7 +21,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
       )
     )
   );
@@ -30,35 +29,32 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Network-first for API calls
-  if (event.request.url.includes("/wp-json/")) {
+  if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+
+  // برای API و فایل‌های Next.js همیشه network-first
+  if (
+    url.pathname.startsWith("/_next/") ||
+    url.pathname.startsWith("/wp-json/") ||
+    url.pathname.startsWith("/api/")
+  ) {
     event.respondWith(
-      fetch(event.request).catch(() =>
-        caches.match(event.request)
-      )
+      fetch(event.request).catch(() => caches.match(event.request))
     );
     return;
   }
 
-  // Cache-first for everything else
+  // برای بقیه: stale-while-revalidate
   event.respondWith(
-    caches.match(event.request).then(
-      (cached) =>
-        cached ||
-        fetch(event.request).then((response) => {
-          // Cache successful GET requests
-          if (
-            response.ok &&
-            event.request.method === "GET" &&
-            !event.request.url.includes("_next/webpack")
-          ) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) =>
-              cache.put(event.request, clone)
-            );
-          }
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.match(event.request).then((cached) => {
+        const fetched = fetch(event.request).then((response) => {
+          if (response.ok) cache.put(event.request, response.clone());
           return response;
-        })
+        });
+        return cached || fetched;
+      })
     )
   );
 });

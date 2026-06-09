@@ -22,11 +22,16 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ],
   "screenshots": [
     {
-      "src": "/figma/screens/Android Compact - 2.pdf.png",
+      "src": "/screenshots/home.png",
       "sizes": "412x917",
       "type": "image/png",
       "form_factor": "narrow",
