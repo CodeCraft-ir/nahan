@@ -1,7 +1,7 @@
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
 const siteUrl = trimTrailingSlash(
-  process.env.WP_SITE_URL ?? "https://www.nahancafe.ir/nahanadmin",
+  process.env.WP_SITE_URL ?? "https://api.nahancafe.ir",
 );
 
 export const wpConfig = {
