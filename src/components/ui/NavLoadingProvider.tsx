@@ -103,7 +103,10 @@ function NarhanLoadingOverlay({ visible }: { visible: boolean }) {
             borderRadius: "50%",
             background:
               "radial-gradient(circle, rgba(200,162,124,0.22) 0%, transparent 70%)",
-            animation: visible ? "narhan-glow 2s ease-in-out infinite" : "none",
+            animationName: visible ? "narhan-glow" : "none",
+            animationDuration: "2s",
+            animationTimingFunction: "ease-in-out",
+            animationIterationCount: "infinite",
           }}
         />
 
@@ -111,7 +114,10 @@ function NarhanLoadingOverlay({ visible }: { visible: boolean }) {
         <div
           style={{
             position: "relative",
-            animation: visible ? "narhan-breathe 2s ease-in-out infinite" : "none",
+            animationName: visible ? "narhan-breathe" : "none",
+            animationDuration: "2s",
+            animationTimingFunction: "ease-in-out",
+            animationIterationCount: "infinite",
             marginBottom: 28,
           }}
         >
@@ -138,7 +144,10 @@ function NarhanLoadingOverlay({ visible }: { visible: boolean }) {
               width: "28%",
               background:
                 "linear-gradient(90deg, transparent, #c8a27c 50%, transparent)",
-              animation: visible ? "narhan-shimmer 1.4s ease-in-out infinite" : "none",
+              animationName: visible ? "narhan-shimmer" : "none",
+              animationDuration: "1.4s",
+              animationTimingFunction: "ease-in-out",
+              animationIterationCount: "infinite",
             }}
           />
         </div>
@@ -153,7 +162,10 @@ function NarhanLoadingOverlay({ visible }: { visible: boolean }) {
                 height: 3.5,
                 borderRadius: "50%",
                 background: "rgba(200, 162, 124, 0.55)",
-                animation: visible ? "narhan-dot 1.2s ease-in-out infinite" : "none",
+                animationName: visible ? "narhan-dot" : "none",
+                animationDuration: "1.2s",
+                animationTimingFunction: "ease-in-out",
+                animationIterationCount: "infinite",
                 animationDelay: `${i * 0.2}s`,
               }}
             />

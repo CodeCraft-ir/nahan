@@ -26,17 +26,19 @@ function MenuItemImage({ src, alt }: { src: string; alt: string }) {
         className="absolute bottom-0 left-0"
         aria-hidden
       />
-      <Image
-        src={src}
-        alt={alt}
-        width={spacing.menuImageMaxWidth}
-        height={spacing.menuImageMaxHeight}
-        className="absolute bottom-1 left-1/2 z-10 h-auto w-auto max-h-none max-w-none -translate-x-1/2 object-contain object-bottom"
-        style={{
-          maxHeight: spacing.menuImageMaxHeight,
-          maxWidth: spacing.menuImageMaxWidth,
-        }}
-      />
+      {src ? (
+        <Image
+          src={src}
+          alt={alt}
+          width={spacing.menuImageMaxWidth}
+          height={spacing.menuImageMaxHeight}
+          className="absolute bottom-1 left-1/2 z-10 h-auto w-auto max-h-none max-w-none -translate-x-1/2 object-contain object-bottom"
+          style={{
+            maxHeight: spacing.menuImageMaxHeight,
+            maxWidth: spacing.menuImageMaxWidth,
+          }}
+        />
+      ) : null}
     </div>
   );
 }
