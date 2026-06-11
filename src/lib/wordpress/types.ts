@@ -41,6 +41,7 @@ export interface WpPost {
   };
 }
 
+// ─── WooCommerce Store API (بدون نیاز به کلید) ───────────────────────────
 export interface WcStoreImage {
   src: string;
   alt?: string;
@@ -62,14 +63,35 @@ export interface WcStoreProduct {
   categories?: WcStoreCategory[];
 }
 
+// ─── WooCommerce REST API v3 (نیاز به consumer key/secret) ──────────────
+export interface WcRestImage {
+  id: number;
+  src: string;
+  name?: string;
+  alt?: string;
+}
+
+export interface WcRestCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export interface WcRestProduct {
   id: number;
   name: string;
   slug: string;
+  status?: string;
   description?: string;
   short_description?: string;
   price?: string;
   regular_price?: string;
-  images?: { src: string; alt?: string }[];
-  categories?: { id: number; name: string; slug: string }[];
+  sale_price?: string;
+  /** آرایه تصاویر محصول — اولی تصویر اصلیه */
+  images?: WcRestImage[];
+  categories?: WcRestCategory[];
+  /** تگ‌های محصول */
+  tags?: { id: number; name: string; slug: string }[];
+  /** متادیتا سفارشی */
+  meta_data?: { id: number; key: string; value: unknown }[];
 }

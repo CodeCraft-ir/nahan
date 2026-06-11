@@ -1,3 +1,4 @@
+// src/lib/wordpress/config.ts
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 
 const siteUrl = trimTrailingSlash(
