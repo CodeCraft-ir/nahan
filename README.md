@@ -71,6 +71,6 @@ src/
 2. Framework: **Next.js** (خودکار تشخیص داده می‌شود)
 3. Root Directory: خالی بگذارید (ریپو همان `narhan-web` است)
 4. متغیرهای محیطی (از `.env.example`):
-   - `WP_SITE_URL` — آدرس وردپرس (پیش‌فرض: `https://nahancafe.ir/nahanadmin`)
+   - `WP_SITE_URL` — آدرس وردپرس (پیش‌فرض: `https://api.nahancafe.ir`)
    - در صورت نیاز: `WP_USE_STATIC_FALLBACK=true` اگر API در build در دسترس نبود
 5. **Deploy** — هر push به `main` به‌صورت خودکار deploy می‌شود

@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const wpHostname = (() => {
   try {
     return new URL(
-      process.env.WP_SITE_URL ?? "https://nahancafe.ir/nahanadmin",
+      process.env.WP_SITE_URL ?? "https://api.nahancafe.ir",
     ).hostname;
   } catch {
     return "nahancafe.ir";
@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "**.nahancafe.ir",
+        hostname: "**.api.nahancafe.ir",
         pathname: "/**",
       },
     ],
