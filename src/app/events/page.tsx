@@ -3,7 +3,6 @@ import { EventsPageContent } from "@/components/events/EventsPageContent";
 import { getEventsData } from "@/lib/wordpress";
 
 export const revalidate = 300;
-export const dynamic = "force-dynamic";
 
 export default async function EventsPage() {
   const { categories, items, isOffline } = await getEventsData();

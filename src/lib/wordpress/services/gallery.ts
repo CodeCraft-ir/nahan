@@ -98,14 +98,14 @@ export async function getGalleryData(): Promise<GalleryDataResult> {
     return offlineResult({ items: getStaticGalleryData() });
   }
 
-  // ترتیب اولویت: WC REST API → WC Store API → WP Posts API → Static fallback
-  const sources = [
-    fetchFromWcRestApi,
-    fetchFromStoreApi,
-    fetchFromWpProducts,
-  ];
+  const { consumerKey, consumerSecret } = wpConfig.woocommerce;
+  const hasCreds = Boolean(consumerKey && consumerSecret);
 
-  for (const source of sources) {
+  // اگر کلید داریم WC REST رو امتحان کن، وگرنه Store API
+  const primarySource = hasCreds ? fetchFromWcRestApi : fetchFromStoreApi;
+  const fallbackSource = hasCreds ? fetchFromStoreApi : fetchFromWpProducts;
+
+  for (const source of [primarySource, fallbackSource]) {
     try {
       const items = await source();
       if (items && items.length > 0) {
@@ -113,7 +113,6 @@ export async function getGalleryData(): Promise<GalleryDataResult> {
       }
     } catch (error) {
       console.error(`[Gallery] Source ${source.name} failed:`, error);
-      // ادامه به روش بعدی
     }
   }
 

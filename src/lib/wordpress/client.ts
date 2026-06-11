@@ -45,6 +45,8 @@ const wpFetchHeaders = {
   "User-Agent": "NahanWeb/1.0 (+https://nahan.vercel.app)",
 } as const;
 
+const WP_FETCH_TIMEOUT_MS = 8000;
+
 export async function wpFetch<T>(
   path: string,
   params?: WpQueryParams,
@@ -55,6 +57,7 @@ export async function wpFetch<T>(
   try {
     const response = await fetch(url, {
       ...init,
+      signal: AbortSignal.timeout(WP_FETCH_TIMEOUT_MS),
       headers: {
         ...wpFetchHeaders,
         ...init?.headers,
@@ -93,6 +96,7 @@ export async function wpFetchAllPages<T>(
 
       const response = await fetch(url, {
         ...init,
+        signal: AbortSignal.timeout(WP_FETCH_TIMEOUT_MS),
         headers: {
           ...wpFetchHeaders,
           ...init?.headers,
