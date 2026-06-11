@@ -10,6 +10,7 @@ function mapStoreProduct(product: WcStoreProduct): GalleryItem {
 
   return {
     id: String(product.id),
+    categoryId: "",
     title: product.name,
     ...(image ? { image } : {}),
   };
@@ -18,11 +19,11 @@ function mapStoreProduct(product: WcStoreProduct): GalleryItem {
 // ─── WooCommerce REST API v3 ──────────────────────────────────────────────
 
 function mapRestProduct(product: WcRestProduct): GalleryItem {
-  // اولین تصویر با src معتبر
   const image = product.images?.find((img) => img.src)?.src;
 
   return {
     id: String(product.id),
+    categoryId: "",
     title: product.name,
     ...(image ? { image } : {}),
   };

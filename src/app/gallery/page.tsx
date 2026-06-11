@@ -5,11 +5,11 @@ import { getGalleryData } from "@/lib/wordpress";
 export const revalidate = 300;
 
 export default async function GalleryPage() {
-  const { items, isOffline } = await getGalleryData();
+  const { categories, items, isOffline } = await getGalleryData();
 
   return (
     <AppShell isOffline={isOffline}>
-      <GalleryGrid items={items} />
+      <GalleryGrid categories={categories} items={items} />
     </AppShell>
   );
 }

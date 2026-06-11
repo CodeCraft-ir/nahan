@@ -1,10 +1,10 @@
 import type { GalleryItem } from "@/lib/types";
 
 export const GALLERY_ITEMS: GalleryItem[] = [
-  { id: "1", title: "فضای کافه" },
-  { id: "2", title: "نمایشگاه هنری" },
-  { id: "3", title: "رویداد شام" },
-  { id: "4", title: "بار اسپرسو" },
-  { id: "5", title: "کارگاه تایپوگرافی" },
-  { id: "6", title: "شب فیلم" },
+  { id: "1", categoryId: "cafe", title: "فضای کافه" },
+  { id: "2", categoryId: "cafe", title: "نمایشگاه هنری" },
+  { id: "3", categoryId: "cafe", title: "رویداد شام" },
+  { id: "4", categoryId: "cafe", title: "بار اسپرسو" },
+  { id: "5", categoryId: "cafe", title: "کارگاه تایپوگرافی" },
+  { id: "6", categoryId: "cafe", title: "شب فیلم" },
 ];

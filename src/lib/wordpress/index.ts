@@ -10,6 +10,7 @@ export {
   type GalleryData,
   type GalleryDataResult,
 } from "@/lib/wordpress/services/gallery";
+export type { GalleryCategory } from "@/lib/types";
 export {
   getEventsData,
   type EventsData,

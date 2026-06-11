@@ -1,19 +1,13 @@
 import { MENU_CATEGORIES } from "@/lib/data/navigation";
 import { getMenuGroupedByCategory, MENU_ITEMS } from "@/lib/data/menu";
 import type { MenuCategory, MenuItem } from "@/lib/types";
-import { wpFetchAllPages } from "@/lib/wordpress/client";
+import { wpFetch } from "@/lib/wordpress/client";
 import { wpConfig } from "@/lib/wordpress/config";
-import {
-  groupMenuItems,
-  mapMenuCategory,
-  mapMenuItem,
-} from "@/lib/wordpress/mappers/menu";
 import {
   offlineResult,
   onlineResult,
   type WithOfflineFlag,
 } from "@/lib/wordpress/offline";
-import type { WpPost, WpTerm } from "@/lib/wordpress/types";
 
 export interface MenuData {
   categories: MenuCategory[];
@@ -22,21 +16,30 @@ export interface MenuData {
   isOffline: boolean;
 }
 
-export type MenuDataResult = WithOfflineFlag<
-  Omit<MenuData, "isOffline">
->;
+export type MenuDataResult = WithOfflineFlag<Omit<MenuData, "isOffline">>;
+
+interface NahanMenuGroup {
+  category: { id: string; label: string };
+  items: {
+    id: string;
+    title: string;
+    description: string;
+    price: string;
+    image: string;
+    badge: string;
+  }[];
+}
+
+function parsePrice(raw: string): number {
+  return Number(raw.replace(/[^0-9]/g, "")) || 0;
+}
 
 function getStaticMenuData(): Omit<MenuData, "isOffline"> {
-  const groups = getMenuGroupedByCategory();
   return {
     categories: MENU_CATEGORIES,
     items: MENU_ITEMS,
-    groups,
+    groups: getMenuGroupedByCategory(),
   };
-}
-
-function buildCategorySlugMap(terms: WpTerm[]): Map<number, string> {
-  return new Map(terms.map((term) => [term.id, term.slug]));
 }
 
 export async function getMenuData(): Promise<MenuDataResult> {
@@ -44,36 +47,42 @@ export async function getMenuData(): Promise<MenuDataResult> {
     return offlineResult(getStaticMenuData());
   }
 
-  const [terms, posts] = await Promise.all([
-    wpFetchAllPages<WpTerm>(
-      `/wp/v2/${wpConfig.taxonomies.menuCategories}`,
-      { hide_empty: true, orderby: "name", order: "asc" },
-    ),
-    wpFetchAllPages<WpPost>(`/wp/v2/${wpConfig.postTypes.menuItems}`, {
-      _embed: true,
-      status: "publish",
-      orderby: "menu_order",
-      order: "asc",
-    }),
-  ]);
+  const groups = await wpFetch<NahanMenuGroup[]>("/nahan/v1/menu");
 
-  if (!terms?.length || !posts) {
+  if (!groups?.length) {
     return offlineResult(getStaticMenuData());
   }
 
-  const categories = terms.map(mapMenuCategory);
-  const categorySlugById = buildCategorySlugMap(terms);
-  const items = posts
-    .map((post) => mapMenuItem(post, categorySlugById))
-    .filter((item): item is MenuItem => item !== null);
+  const categories: MenuCategory[] = [];
+  const items: MenuItem[] = [];
 
-  if (categories.length === 0) {
-    return offlineResult(getStaticMenuData());
+  for (const group of groups) {
+    categories.push({ id: group.category.id, label: group.category.label });
+    for (const item of group.items) {
+      items.push({
+        id: item.id,
+        categoryId: group.category.id,
+        title: item.title,
+        description: item.description,
+        price: parsePrice(item.price),
+        image: item.image || "",
+      });
+    }
   }
 
   return onlineResult({
     categories,
     items,
-    groups: groupMenuItems(categories, items),
+    groups: groups.map((g) => ({
+      category: { id: g.category.id, label: g.category.label },
+      items: g.items.map((item) => ({
+        id: item.id,
+        categoryId: g.category.id,
+        title: item.title,
+        description: item.description,
+        price: parsePrice(item.price),
+        image: item.image || "",
+      })),
+    })),
   });
 }

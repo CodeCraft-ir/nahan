@@ -33,8 +33,15 @@ export interface EventItem {
   image?: string;
 }
 
+export interface GalleryCategory {
+  id: string;
+  label: string;
+}
+
 export interface GalleryItem {
   id: string;
+  categoryId: string;
   title: string;
   image?: string;
+  price?: string;
 }

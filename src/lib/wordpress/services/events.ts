@@ -1,18 +1,13 @@
 import { EVENT_CATEGORIES } from "@/lib/data/navigation";
 import { EVENT_ITEMS } from "@/lib/data/events";
 import type { EventCategory, EventItem } from "@/lib/types";
-import { wpFetchAllPages } from "@/lib/wordpress/client";
+import { wpFetch } from "@/lib/wordpress/client";
 import { wpConfig } from "@/lib/wordpress/config";
-import {
-  mapEventCategory,
-  mapEventItem,
-} from "@/lib/wordpress/mappers/events";
 import {
   offlineResult,
   onlineResult,
   type WithOfflineFlag,
 } from "@/lib/wordpress/offline";
-import type { WpPost, WpTerm } from "@/lib/wordpress/types";
 
 export interface EventsData {
   categories: EventCategory[];
@@ -20,19 +15,32 @@ export interface EventsData {
   isOffline: boolean;
 }
 
-export type EventsDataResult = WithOfflineFlag<
-  Omit<EventsData, "isOffline">
->;
+export type EventsDataResult = WithOfflineFlag<Omit<EventsData, "isOffline">>;
 
-function getStaticEventsData(): Omit<EventsData, "isOffline"> {
-  return {
-    categories: EVENT_CATEGORIES,
-    items: EVENT_ITEMS,
-  };
+interface NahanEventGroup {
+  category: { id: string; label: string };
+  items: {
+    id: string;
+    title: string;
+    description: string;
+    date: string;
+    time: string;
+    capacity: number;
+    registered: number;
+    image: string;
+    link: string;
+  }[];
 }
 
-function buildCategorySlugMap(terms: WpTerm[]): Map<number, string> {
-  return new Map(terms.map((term) => [term.id, term.slug]));
+function getStaticEventsData(): Omit<EventsData, "isOffline"> {
+  return { categories: EVENT_CATEGORIES, items: EVENT_ITEMS };
+}
+
+function formatSubtitle(date: string, time: string): string {
+  if (!date) return "";
+  const parts = [date];
+  if (time) parts.push(time);
+  return parts.join(" — ");
 }
 
 export async function getEventsData(): Promise<EventsDataResult> {
@@ -40,30 +48,30 @@ export async function getEventsData(): Promise<EventsDataResult> {
     return offlineResult(getStaticEventsData());
   }
 
-  const [terms, posts] = await Promise.all([
-    wpFetchAllPages<WpTerm>(
-      `/wp/v2/${wpConfig.taxonomies.eventCategories}`,
-      { hide_empty: true, orderby: "name", order: "asc" },
-    ),
-    wpFetchAllPages<WpPost>(`/wp/v2/${wpConfig.postTypes.events}`, {
-      _embed: true,
-      status: "publish",
-      orderby: "date",
-      order: "desc",
-    }),
-  ]);
+  const groups = await wpFetch<NahanEventGroup[]>("/nahan/v1/events");
 
-  if (!terms?.length || !posts) {
+  if (!groups?.length) {
     return offlineResult(getStaticEventsData());
   }
 
-  const categories = terms.map(mapEventCategory);
-  const categorySlugById = buildCategorySlugMap(terms);
-  const items = posts
-    .map((post) => mapEventItem(post, categorySlugById))
-    .filter((item): item is EventItem => item !== null);
+  const categories: EventCategory[] = [];
+  const items: EventItem[] = [];
 
-  if (categories.length === 0) {
+  for (const group of groups) {
+    if (!group.items.length) continue;
+    categories.push({ id: group.category.id, label: group.category.label });
+    for (const item of group.items) {
+      items.push({
+        id: item.id,
+        categoryId: group.category.id,
+        title: item.title,
+        subtitle: formatSubtitle(item.date, item.time),
+        ...(item.image ? { image: item.image } : {}),
+      });
+    }
+  }
+
+  if (!categories.length) {
     return offlineResult(getStaticEventsData());
   }
 
