@@ -37,7 +37,7 @@ export function NavLoadingProvider({
     if (pathname !== prevPathname.current) {
       prevPathname.current = pathname;
       if (hideTimer.current) clearTimeout(hideTimer.current);
-      hideTimer.current = setTimeout(() => setVisible(false), 150);
+      hideTimer.current = setTimeout(() => setVisible(false), 250);
     }
   }, [pathname]);
 
@@ -60,19 +60,20 @@ function NarhanLoadingOverlay({ visible }: { visible: boolean }) {
       <style>{`
         @keyframes narhan-shimmer {
           0%   { transform: translateX(-100%); }
-          100% { transform: translateX(350%); }
+          100% { transform: translateX(400%); }
         }
-        @keyframes narhan-logo-breathe {
-          0%, 100% { opacity: 0.65; transform: scale(0.97); }
-          50%       { opacity: 1;    transform: scale(1); }
-        }
-        @keyframes narhan-dot {
-          0%, 100% { opacity: 0.2; transform: scale(0.8); }
+        @keyframes narhan-breathe {
+          0%, 100% { opacity: 0.7; transform: scale(0.96); }
           50%       { opacity: 1;   transform: scale(1); }
         }
-        .narhan-dot:nth-child(1) { animation-delay: 0s; }
-        .narhan-dot:nth-child(2) { animation-delay: 0.18s; }
-        .narhan-dot:nth-child(3) { animation-delay: 0.36s; }
+        @keyframes narhan-glow {
+          0%, 100% { opacity: 0.15; transform: scale(0.9); }
+          50%       { opacity: 0.35; transform: scale(1.05); }
+        }
+        @keyframes narhan-dot {
+          0%, 100% { opacity: 0.2; transform: translateY(0); }
+          50%       { opacity: 1;   transform: translateY(-3px); }
+        }
       `}</style>
 
       <div
@@ -88,71 +89,72 @@ function NarhanLoadingOverlay({ visible }: { visible: boolean }) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 0,
           opacity: visible ? 1 : 0,
           pointerEvents: visible ? "auto" : "none",
-          transition: "opacity 220ms ease-in-out",
+          transition: "opacity 200ms ease-in-out",
         }}
       >
+        {/* هاله نور پشت لوگو */}
+        <div
+          style={{
+            position: "absolute",
+            width: 110,
+            height: 110,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(200,162,124,0.22) 0%, transparent 70%)",
+            animation: visible ? "narhan-glow 2s ease-in-out infinite" : "none",
+          }}
+        />
+
         {/* لوگو */}
         <div
           style={{
-            animation: visible
-              ? "narhan-logo-breathe 1.8s ease-in-out infinite"
-              : "none",
-            marginBottom: 20,
+            position: "relative",
+            animation: visible ? "narhan-breathe 2s ease-in-out infinite" : "none",
+            marginBottom: 28,
           }}
         >
-          <Logo width={44} height={56} />
+          <Logo width={52} height={66} />
         </div>
 
         {/* نوار shimmer */}
         <div
           style={{
-            width: 44,
-            height: 1.5,
-            background: "rgba(255,255,255,0.07)",
-            borderRadius: 2,
+            width: 52,
+            height: 1,
+            background: "rgba(255,255,255,0.06)",
+            borderRadius: 1,
             overflow: "hidden",
             position: "relative",
-            marginBottom: 14,
+            marginBottom: 16,
           }}
         >
           <div
             style={{
               position: "absolute",
-              inset: 0,
+              top: 0,
+              bottom: 0,
+              width: "28%",
               background:
-                "linear-gradient(90deg, transparent 0%, #c8a27c 50%, transparent 100%)",
-              animation: visible
-                ? "narhan-shimmer 1.3s ease-in-out infinite"
-                : "none",
-              width: "30%",
+                "linear-gradient(90deg, transparent, #c8a27c 50%, transparent)",
+              animation: visible ? "narhan-shimmer 1.4s ease-in-out infinite" : "none",
             }}
           />
         </div>
 
         {/* سه نقطه */}
-        <div
-          style={{
-            display: "flex",
-            gap: 5,
-            alignItems: "center",
-          }}
-        >
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="narhan-dot"
               style={{
-                width: 3,
-                height: 3,
+                width: 3.5,
+                height: 3.5,
                 borderRadius: "50%",
-                background: "rgba(200, 162, 124, 0.5)",
-                animation: visible
-                  ? `narhan-dot 1.3s ease-in-out infinite`
-                  : "none",
-                animationDelay: `${i * 0.18}s`,
+                background: "rgba(200, 162, 124, 0.55)",
+                animation: visible ? "narhan-dot 1.2s ease-in-out infinite" : "none",
+                animationDelay: `${i * 0.2}s`,
               }}
             />
           ))}

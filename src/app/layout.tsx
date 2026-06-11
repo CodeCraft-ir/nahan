@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { ServiceWorkerRegistrar } from "@/components/ui/ServiceWorkerRegistrar";
+import { NavLoadingProvider } from "@/components/ui/NavLoadingProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -41,7 +42,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full bg-narhan-charcoal text-white antialiased">
         <ServiceWorkerRegistrar />
-        {children}
+        <NavLoadingProvider>{children}</NavLoadingProvider>
       </body>
     </html>
   );
