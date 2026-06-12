@@ -11,7 +11,7 @@ export function HomeScrollPage() {
       className="mx-auto min-h-screen w-full"
       style={{ maxWidth: designTokens.layout.maxWidth }}
     >
-      <div className="flex min-h-dvh flex-col bg-white">
+      <div className="flex h-dvh flex-col bg-white">
         <HeroSection />
         <HomeInfoSection />
         <ScrollHint />
