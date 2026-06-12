@@ -2,6 +2,7 @@
   "name": "نهان | کافه گالری",
   "short_name": "نهان",
   "description": "نهان کافه گالری — منو، گالری و رویدادها",
+  "id": "/",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["standalone"],
