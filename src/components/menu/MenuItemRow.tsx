@@ -82,16 +82,25 @@ export function MenuItemRow({ item }: MenuItemRowProps) {
         dir="ltr"
         style={{ width: spacing.priceWidth }}
       >
-        <p
-          className="flex items-baseline gap-1 text-white"
-          style={{
-            fontSize: typography.price.size,
-            fontWeight: typography.price.weight,
-          }}
-        >
-          <span>تومان</span>
-          <span className="tabular-nums">{formatPriceNumber(item.price)}</span>
-        </p>
+        {item.price !== null ? (
+          <p
+            className="flex items-baseline gap-1 text-white"
+            style={{
+              fontSize: typography.price.size,
+              fontWeight: typography.price.weight,
+            }}
+          >
+            <span>تومان</span>
+            <span className="tabular-nums">{formatPriceNumber(item.price)}</span>
+          </p>
+        ) : (
+          <p
+            className="text-narhan-muted"
+            style={{ fontSize: typography.price.size }}
+          >
+            ناموجود
+          </p>
+        )}
       </div>
     </article>
   );

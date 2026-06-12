@@ -5,21 +5,22 @@ function normalizeDigits(value: string): string {
     .replace(/[^\d.]/g, "");
 }
 
-export function parsePrice(value: unknown): number {
+export function parsePrice(value: unknown): number | null {
   if (typeof value === "number" && Number.isFinite(value)) {
-    return Math.round(value);
+    const rounded = Math.round(value);
+    return rounded > 0 ? rounded : null;
   }
 
   if (typeof value === "string") {
     const normalized = normalizeDigits(value);
     const parsed = Number.parseFloat(normalized);
-    return Number.isFinite(parsed) ? Math.round(parsed) : 0;
+    if (Number.isFinite(parsed) && parsed > 0) return Math.round(parsed);
   }
 
-  return 0;
+  return null;
 }
 
-export function extractPrice(source: Record<string, unknown>): number {
+export function extractPrice(source: Record<string, unknown>): number | null {
   const acf = source.acf as Record<string, unknown> | undefined;
   const meta = source.meta as Record<string, unknown> | undefined;
 
@@ -34,8 +35,8 @@ export function extractPrice(source: Record<string, unknown>): number {
 
   for (const candidate of candidates) {
     const parsed = parsePrice(candidate);
-    if (parsed > 0) return parsed;
+    if (parsed !== null) return parsed;
   }
 
-  return 0;
+  return null;
 }

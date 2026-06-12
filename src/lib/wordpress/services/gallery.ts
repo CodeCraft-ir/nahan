@@ -25,7 +25,8 @@ interface NahanGalleryGroup {
     id: string;
     title: string;
     image: string;
-    price: string;
+    price?: string;
+    sale_price?: string;
   }[];
 }
 
@@ -52,7 +53,8 @@ export async function getGalleryData(): Promise<GalleryDataResult> {
         categoryId: group.category.id,
         title: item.title,
         ...(item.image ? { image: item.image } : {}),
-        ...(item.price ? { price: String(item.price) } : {}),
+        ...(item.price != null ? { price: String(item.price) } : {}),
+        ...(item.sale_price != null ? { salePrice: String(item.sale_price) } : {}),
       });
     }
   }

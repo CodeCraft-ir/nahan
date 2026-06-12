@@ -15,7 +15,7 @@ export interface MenuItem {
   categoryId: string;
   title: string;
   description: string;
-  price: number;
+  price: number | null;
   /** Path from Figma export — `/images/menu/{id}.png` */
   image: string;
 }
@@ -44,4 +44,5 @@ export interface GalleryItem {
   title: string;
   image?: string;
   price?: string;
+  salePrice?: string;
 }
