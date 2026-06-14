@@ -1,0 +1,7 @@
+node_modules
+.next
+.git
+*.md
+figma-export
+nahan-cafe-api
+scripts

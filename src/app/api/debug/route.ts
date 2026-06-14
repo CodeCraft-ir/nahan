@@ -1,31 +1,22 @@
-import { NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
-
 export async function GET() {
-  const wpUrl = process.env.WP_SITE_URL ?? "(not set)";
-  const hasKey = !!process.env.WC_CONSUMER_KEY;
-  const hasSecret = !!process.env.WC_CONSUMER_SECRET;
+  const siteUrl = process.env.WP_SITE_URL ?? "https://api.nahancafe.ir";
 
-  let apiReachable = false;
   let apiStatus: number | null = null;
   let apiError: string | null = null;
 
   try {
-    const res = await fetch(`${wpUrl}/wp-json/`, {
-      signal: AbortSignal.timeout(8000),
+    const res = await fetch(`${siteUrl}/wp-json/`, {
+      signal: AbortSignal.timeout(5000),
     });
-    apiReachable = res.ok;
     apiStatus = res.status;
   } catch (e) {
     apiError = String(e);
   }
 
-  return NextResponse.json({
-    WP_SITE_URL: wpUrl,
-    WC_CONSUMER_KEY_set: hasKey,
-    WC_CONSUMER_SECRET_set: hasSecret,
-    apiReachable,
+  return Response.json({
+    WP_SITE_URL: siteUrl,
+    WC_CONSUMER_KEY_set: !!process.env.WC_CONSUMER_KEY,
+    WC_CONSUMER_SECRET_set: !!process.env.WC_CONSUMER_SECRET,
     apiStatus,
     apiError,
   });

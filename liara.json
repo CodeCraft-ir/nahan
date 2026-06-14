@@ -1,0 +1,8 @@
+{
+  "build": {
+    "location": "iran"
+  },
+  "app": "nahancafe",
+  "platform": "next",
+  "port": 3000
+}

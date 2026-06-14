@@ -11,9 +11,6 @@ const wpHostname = (() => {
 })();
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: import.meta.dirname,
-  },
   images: {
     remotePatterns: [
       {
