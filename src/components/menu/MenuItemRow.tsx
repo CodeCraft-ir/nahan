@@ -52,6 +52,7 @@ export function MenuItemRow({ item }: MenuItemRowProps) {
       style={{
         gap: spacing.menuRowGap,
         padding: `${spacing.menuRowPaddingY}px ${spacing.menuRowPaddingX}px`,
+        opacity:`${(item.price !== null && item.price !== 0 )? 1 : 0.3}`
       }}
     >
       <MenuItemImage src={item.image} alt={item.title} />
@@ -82,7 +83,7 @@ export function MenuItemRow({ item }: MenuItemRowProps) {
         dir="ltr"
         style={{ width: spacing.priceWidth }}
       >
-        {item.price !== null ? (
+        {(item.price !== null && item.price !== 0 )? (
           <p
             className="flex items-baseline gap-1 text-white"
             style={{
@@ -95,7 +96,7 @@ export function MenuItemRow({ item }: MenuItemRowProps) {
           </p>
         ) : (
           <p
-            className="text-narhan-muted"
+            className="text-narhan-accent"
             style={{ fontSize: typography.price.size }}
           >
             ناموجود
