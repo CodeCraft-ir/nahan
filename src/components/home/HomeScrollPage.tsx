@@ -2,7 +2,7 @@
 
 import { HeroSection, HomeInfoSection } from "@/components/home/HeroSection";
 import { ScrollHint } from "@/components/ui/ScrollHint";
-import { InstallAppButton } from "@/components/ui/InstallAppButton";
+// import { InstallAppButton } from "@/components/ui/InstallAppButton";
 import { designTokens } from "@/lib/design-tokens";
 
 export function HomeScrollPage() {
@@ -17,9 +17,9 @@ export function HomeScrollPage() {
         <ScrollHint />
       </div>
 
-      <div className="bg-narhan-charcoal">
+      {/* <div className="bg-narhan-charcoal">
         <InstallAppButton />
-      </div>
+      </div> */}
     </div>
   );
 }

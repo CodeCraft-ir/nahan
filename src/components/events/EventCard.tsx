@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { designTokens } from "@/lib/design-tokens";
 import type { EventItem } from "@/lib/types";
 
@@ -30,13 +31,13 @@ export function EventCard({ event }: EventCardProps) {
           {event.title}
         </h3>
         <p className="mt-1 text-xs text-narhan-muted">{event.subtitle}</p>
-        <button
-          type="button"
-          className="mt-3 w-full bg-narhan-accent py-2.5 text-xs font-medium text-narhan-charcoal transition hover:bg-narhan-accent-hover"
+        <Link
+          href={`/events/${event.id}`}
+          className="mt-3 block w-full bg-narhan-accent py-2.5 text-center text-xs font-medium text-narhan-charcoal transition hover:bg-narhan-accent-hover active:scale-95"
           style={{ borderRadius: 4 }}
         >
           جزئیات
-        </button>
+        </Link>
       </div>
     </article>
   );

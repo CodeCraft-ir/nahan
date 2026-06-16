@@ -33,6 +33,16 @@ export interface EventItem {
   image?: string;
 }
 
+export interface EventItemDetail extends EventItem {
+  categoryLabel: string;
+  description?: string;
+  date?: string;
+  time?: string;
+  capacity?: number;
+  registered?: number;
+  link?: string;
+}
+
 export interface GalleryCategory {
   id: string;
   label: string;
@@ -45,4 +55,9 @@ export interface GalleryItem {
   image?: string;
   price?: string;
   salePrice?: string;
+}
+
+export interface GalleryItemDetail extends GalleryItem {
+  categoryLabel: string;
+  description?: string;
 }

@@ -296,71 +296,102 @@ function nahan_api_get_events(WP_REST_Request $request) {
 
 /**
  * GET /wp-json/nahan/v1/gallery
- * 
- * Returns gallery images (optionally grouped by category)
+ *
+ * اگه WooCommerce فعاله محصولات رو grouped برمی‌گردونه،
+ * وگرنه از CPT nahan_gallery استفاده می‌کنه.
  */
 function nahan_api_get_gallery(WP_REST_Request $request) {
-    $query = $request->get_query_params();
-    $group_by_category = isset($query['group']) && $query['group'] === 'true';
-
-    if ($group_by_category) {
-        $categories = get_terms([
-            'taxonomy' => 'nahan_gallery_category',
-            'hide_empty' => false,
-            'orderby' => 'menu_order',
-            'order' => 'ASC',
-        ]);
-
-        if (is_wp_error($categories)) {
-            return new WP_REST_Response([], 200);
-        }
-
-        $result = [];
-
-        foreach ($categories as $category) {
-            $gallery = get_posts([
-                'post_type' => 'nahan_gallery',
-                'posts_per_page' => -1,
-                'tax_query' => [
-                    [
-                        'taxonomy' => 'nahan_gallery_category',
-                        'field' => 'term_id',
-                        'terms' => $category->term_id,
-                    ],
-                ],
-                'orderby' => 'menu_order',
-                'order' => 'ASC',
-            ]);
-
-            $group = [
-                'category' => [
-                    'id' => $category->slug,
-                    'label' => $category->name,
-                ],
-                'images' => array_map(function ($post) {
-                    return nahan_format_gallery_image($post);
-                }, $gallery),
-            ];
-
-            $result[] = $group;
-        }
-
-        return new WP_REST_Response($result, 200);
-    } else {
-        // Flat list
-        $gallery = get_posts([
-            'post_type' => 'nahan_gallery',
-            'posts_per_page' => -1,
-            'orderby' => 'menu_order',
-            'order' => 'ASC',
-        ]);
-
-        $result = array_map(function ($post) {
-            return nahan_format_gallery_image($post);
-        }, $gallery);
-
-        return new WP_REST_Response($result, 200);
+    if (function_exists('wc_get_products')) {
+        return nahan_api_get_gallery_woocommerce();
     }
+    return nahan_api_get_gallery_cpt();
+}
+
+function nahan_api_get_gallery_woocommerce() {
+    $default_cat_id = (int) get_option('default_product_cat');
+
+    $categories = get_terms([
+        'taxonomy'   => 'product_cat',
+        'hide_empty' => true,
+        'orderby'    => 'name',
+        'order'      => 'ASC',
+        'exclude'    => $default_cat_id ? [$default_cat_id] : [],
+    ]);
+
+    $result = [];
+
+    if (!is_wp_error($categories) && !empty($categories)) {
+        foreach ($categories as $category) {
+            $products = wc_get_products([
+                'status'   => 'publish',
+                'limit'    => -1,
+                'category' => [$category->slug],
+                'orderby'  => 'date',
+                'order'    => 'DESC',
+            ]);
+            if (empty($products)) continue;
+            $result[] = [
+                'category' => ['id' => $category->slug, 'label' => $category->name],
+                'items'    => array_map('nahan_format_wc_product', $products),
+            ];
+        }
+    }
+
+    if (empty($result)) {
+        $all = wc_get_products(['status' => 'publish', 'limit' => -1, 'orderby' => 'date', 'order' => 'DESC']);
+        if (!empty($all)) {
+            $result[] = [
+                'category' => ['id' => 'all', 'label' => 'همه محصولات'],
+                'items'    => array_map('nahan_format_wc_product', $all),
+            ];
+        }
+    }
+
+    return new WP_REST_Response($result, 200);
+}
+
+function nahan_api_get_gallery_cpt() {
+    $categories = get_terms([
+        'taxonomy'   => 'nahan_gallery_category',
+        'hide_empty' => true,
+        'orderby'    => 'name',
+        'order'      => 'ASC',
+    ]);
+
+    $result = [];
+
+    if (!is_wp_error($categories) && !empty($categories)) {
+        foreach ($categories as $category) {
+            $posts = get_posts([
+                'post_type'      => 'nahan_gallery',
+                'posts_per_page' => -1,
+                'tax_query'      => [[
+                    'taxonomy' => 'nahan_gallery_category',
+                    'field'    => 'term_id',
+                    'terms'    => $category->term_id,
+                ]],
+                'orderby' => 'menu_order',
+                'order'   => 'ASC',
+            ]);
+            if (empty($posts)) continue;
+            $result[] = [
+                'category' => ['id' => $category->slug, 'label' => $category->name],
+                'items'    => array_map('nahan_format_gallery_post', $posts),
+            ];
+        }
+    }
+
+    if (empty($result)) {
+        $all = get_posts(['post_type' => 'nahan_gallery', 'posts_per_page' => -1, 'orderby' => 'menu_order', 'order' => 'ASC']);
+        if (!empty($all)) {
+            $result[] = [
+                'category' => ['id' => 'all', 'label' => 'گالری'],
+                'items'    => array_map('nahan_format_gallery_post', $all),
+            ];
+        }
+    }
+
+    return new WP_REST_Response($result, 200);
 }
 
 // ============================================================================
@@ -402,24 +433,29 @@ function nahan_format_event(WP_Post $post) {
     ];
 }
 
-/**
- * Format a gallery image post into API response
- */
-function nahan_format_gallery_image(WP_Post $post) {
-    $image_id = get_post_thumbnail_id($post->ID);
-    $image_url = get_the_post_thumbnail_url($post->ID);
-    
-    // Get multiple image sizes
-    $image_data = [
-        'id' => (string) $post->ID,
-        'title' => $post->post_title,
-        'full' => $image_url ?: '',
-        'thumbnail' => wp_get_attachment_image_src($image_id, 'thumbnail')[0] ?? '',
-        'medium' => wp_get_attachment_image_src($image_id, 'medium')[0] ?? '',
-        'large' => wp_get_attachment_image_src($image_id, 'large')[0] ?? '',
+function nahan_format_gallery_post(WP_Post $post) {
+    $acf = function_exists('get_fields') ? get_fields($post->ID) : [];
+    return [
+        'id'          => (string) $post->ID,
+        'title'       => $post->post_title,
+        'image'       => get_the_post_thumbnail_url($post->ID, 'large') ?: '',
+        'description' => wp_strip_all_tags($post->post_content),
+        'price'       => isset($acf['price']) ? (string) $acf['price'] : '',
+        'sale_price'  => isset($acf['sale_price']) ? (string) $acf['sale_price'] : '',
     ];
+}
 
-    return $image_data;
+function nahan_format_wc_product(WC_Product $product) {
+    $image_id  = $product->get_image_id();
+    $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'large') : '';
+    return [
+        'id'          => (string) $product->get_id(),
+        'title'       => $product->get_name(),
+        'image'       => $image_url ?: '',
+        'description' => wp_strip_all_tags($product->get_description()),
+        'price'       => (string) $product->get_regular_price(),
+        'sale_price'  => (string) $product->get_sale_price(),
+    ];
 }
 
 // ============================================================================
@@ -570,6 +606,154 @@ function nahan_menu_column_content($column, $post_id) {
         echo $price ? esc_html($price) : '—';
     }
 }
+
+// ============================================================================
+// REGISTRATION POST TYPE
+// ============================================================================
+
+add_action('init', 'nahan_register_registration_post_type');
+
+function nahan_register_registration_post_type() {
+    register_post_type('nahan_registration', [
+        'label'           => 'ثبت‌نام رویداد',
+        'public'          => false,
+        'show_ui'         => true,
+        'show_in_menu'    => true,
+        'show_in_rest'    => false,
+        'capability_type' => 'post',
+        'supports'        => ['title', 'custom-fields'],
+        'menu_icon'       => 'dashicons-groups',
+        'has_archive'     => false,
+        'rewrite'         => false,
+    ]);
+}
+
+// ============================================================================
+// REGISTRATION REST ENDPOINT
+// ============================================================================
+
+add_action('rest_api_init', 'nahan_register_registration_route');
+
+function nahan_register_registration_route() {
+    register_rest_route(NAHAN_REST_NAMESPACE, '/events/(?P<id>\d+)/register', [
+        'methods'             => 'POST',
+        'callback'            => 'nahan_api_register_event',
+        'permission_callback' => '__return_true',
+        'args' => [
+            'id'    => ['validate_callback' => function($v) { return is_numeric($v); }],
+            'name'  => ['required' => true,  'sanitize_callback' => 'sanitize_text_field'],
+            'phone' => ['required' => true,  'sanitize_callback' => 'sanitize_text_field'],
+            'email' => ['required' => false, 'sanitize_callback' => 'sanitize_email'],
+        ],
+    ]);
+}
+
+function nahan_api_register_event(WP_REST_Request $request) {
+    $event_id  = (int) $request->get_param('id');
+    $name      = $request->get_param('name');
+    $phone     = $request->get_param('phone');
+    $email     = $request->get_param('email') ?: '';
+
+    // بررسی وجود رویداد
+    $event = get_post($event_id);
+    if (!$event || $event->post_type !== 'nahan_event' || $event->post_status !== 'publish') {
+        return new WP_REST_Response(['success' => false, 'code' => 'not_found', 'message' => 'رویداد یافت نشد.'], 404);
+    }
+
+    // بررسی ظرفیت
+    $capacity   = (int) get_field('capacity',   $event_id);
+    $registered = (int) get_field('registered', $event_id);
+
+    if ($capacity > 0 && $registered >= $capacity) {
+        return new WP_REST_Response(['success' => false, 'code' => 'capacity_full', 'message' => 'ظرفیت این رویداد تکمیل است.'], 409);
+    }
+
+    // بررسی ثبت‌نام تکراری با همان شماره موبایل
+    $duplicate = get_posts([
+        'post_type'      => 'nahan_registration',
+        'posts_per_page' => 1,
+        'meta_query'     => [
+            ['key' => 'event_id', 'value' => $event_id],
+            ['key' => 'phone',    'value' => $phone],
+        ],
+    ]);
+
+    if (!empty($duplicate)) {
+        return new WP_REST_Response(['success' => false, 'code' => 'already_registered', 'message' => 'این شماره موبایل قبلاً ثبت‌نام کرده است.'], 409);
+    }
+
+    // ذخیره ثبت‌نام
+    $reg_id = wp_insert_post([
+        'post_type'   => 'nahan_registration',
+        'post_title'  => $name . ' — ' . $event->post_title,
+        'post_status' => 'publish',
+    ]);
+
+    if (is_wp_error($reg_id)) {
+        return new WP_REST_Response(['success' => false, 'code' => 'server_error', 'message' => 'خطا در ذخیره اطلاعات.'], 500);
+    }
+
+    update_post_meta($reg_id, 'event_id', $event_id);
+    update_post_meta($reg_id, 'name',     $name);
+    update_post_meta($reg_id, 'phone',    $phone);
+    update_post_meta($reg_id, 'email',    $email);
+
+    // افزایش شمارنده registered
+    update_field('registered', $registered + 1, $event_id);
+
+    return new WP_REST_Response([
+        'success' => true,
+        'message' => 'ثبت‌نام شما با موفقیت انجام شد.',
+    ], 201);
+}
+
+// ============================================================================
+// CORS برای endpoint ثبت‌نام
+// ============================================================================
+
+add_action('rest_api_init', function () {
+    remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
+    add_filter('rest_pre_serve_request', function ($value) {
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        $allowed = ['https://nahancafe.ir', 'https://nahancafe.liara.run'];
+        if (in_array($origin, $allowed, true)) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+            header('Access-Control-Allow-Headers: Content-Type');
+        }
+        return $value;
+    });
+}, 15);
+
+// ============================================================================
+// REGISTRATION ADMIN COLUMNS
+// ============================================================================
+
+add_filter('manage_nahan_registration_posts_columns', function ($cols) {
+    return array_merge(['cb' => $cols['cb']], [
+        'title'    => 'نام',
+        'phone'    => 'موبایل',
+        'email'    => 'ایمیل',
+        'event'    => 'رویداد',
+        'date'     => 'تاریخ ثبت‌نام',
+    ]);
+});
+
+add_action('manage_nahan_registration_posts_custom_column', function ($col, $post_id) {
+    switch ($col) {
+        case 'phone':
+            echo esc_html(get_post_meta($post_id, 'phone', true));
+            break;
+        case 'email':
+            echo esc_html(get_post_meta($post_id, 'email', true));
+            break;
+        case 'event':
+            $eid = get_post_meta($post_id, 'event_id', true);
+            $ev  = $eid ? get_post($eid) : null;
+            echo $ev ? esc_html($ev->post_title) : '—';
+            break;
+    }
+}, 10, 2);
 
 // ============================================================================
 // PLUGIN INFO

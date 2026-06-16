@@ -1,5 +1,6 @@
 import { MenuWithStickyHeader } from "@/components/menu/MenuWithStickyHeader";
 import { OfflineNotice } from "@/components/ui/OfflineNotice";
+import { InstallAppButton } from "@/components/ui/InstallAppButton";
 import { designTokens } from "@/lib/design-tokens";
 import { getMenuData } from "@/lib/wordpress";
 
@@ -15,6 +16,7 @@ export default async function MenuPage() {
     >
       {isOffline ? <OfflineNotice /> : null}
       <MenuWithStickyHeader categories={categories} groups={groups} />
+      <InstallAppButton />
     </div>
   );
 }

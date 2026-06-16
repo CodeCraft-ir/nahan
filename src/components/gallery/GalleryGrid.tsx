@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { SubNav } from "@/components/layout/SubNav";
 import { formatPriceNumber } from "@/lib/utils/format";
 import type { GalleryCategory, GalleryItem } from "@/lib/types";
@@ -85,26 +86,29 @@ export function GalleryGrid({ categories, items }: GalleryGridProps) {
       )}
       <div className="grid grid-cols-2 gap-3 px-4 py-5 pb-10">
         {filtered.map((item) => (
-          <figure
+          <Link
             key={item.id}
-            className="overflow-hidden rounded-lg bg-narhan-card"
+            href={`/gallery/${item.id}`}
+            className="overflow-hidden rounded-lg bg-narhan-card active:scale-95 transition-transform"
           >
-            <div className="relative aspect-square bg-gradient-to-br from-narhan-image-bg/90 to-narhan-panel/40">
-              {item.image ? (
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 480px) 50vw, 240px"
-                />
-              ) : null}
-            </div>
-            <figcaption className="p-3 text-center text-xs font-medium text-white">
-              {item.title}
-              <GalleryItemPrice price={item.price} salePrice={item.salePrice} />
-            </figcaption>
-          </figure>
+            <figure>
+              <div className="relative aspect-square bg-gradient-to-br from-narhan-image-bg/90 to-narhan-panel/40">
+                {item.image ? (
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 480px) 50vw, 240px"
+                  />
+                ) : null}
+              </div>
+              <figcaption className="p-3 text-center text-xs font-medium text-white">
+                {item.title}
+                <GalleryItemPrice price={item.price} salePrice={item.salePrice} />
+              </figcaption>
+            </figure>
+          </Link>
         ))}
       </div>
     </>

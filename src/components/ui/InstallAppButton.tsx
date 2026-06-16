@@ -62,10 +62,10 @@ export function InstallAppButton() {
           </div>
           <div>
             <p className="text-sm font-semibold leading-tight text-white">
-              نصب اپ نهان
+              Install Nahan App
             </p>
             <p className="mt-0.5 text-xs text-narhan-muted">
-              دسترسی سریع‌تر، تجربه اپ واقعی
+              Faster access, real app experience
             </p>
           </div>
         </button>
