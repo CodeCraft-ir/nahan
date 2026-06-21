@@ -39,3 +39,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# TWA / Bubblewrap (Android build) — NEVER commit signing keys or build output
+twa/*.keystore
+twa/*.jks
+twa/android.keystore
+twa/*.apk
+twa/*.aab
+twa/app/
+twa/.gradle/
+twa/build/
+twa/node_modules/
+twa/store_icon.png
+twa/*.keystore.json
