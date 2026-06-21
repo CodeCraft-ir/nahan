@@ -1,97 +1,78 @@
 # ساخت نسخه‌ی TWA اپ نهان (اندروید)
 
-این پوشه کانفیگ تبدیل PWA نهان به یک اپ اندرویدی **TWA (Trusted Web Activity)** را نگه می‌دارد.
-TWA همان سایت `https://nahancafe.ir` را داخل یک اپ اندرویدی واقعی (نصب‌شونده از فایل/گوگل‌پلی) و
-**بدون نوار آدرس مرورگر** اجرا می‌کند.
+این پوشه PWA نهان (`https://nahancafe.ir`) را به یک اپ اندرویدی **TWA (Trusted Web Activity)**
+تبدیل می‌کند: همان سایت، داخل یک اپ واقعی نصب‌شونده و **بدون نوار آدرس مرورگر**.
 
-## پیش‌نیازها (روی سیستم خودت)
+> **چرا با GitHub Actions؟**
+> از IP ایران، سرورهای گوگل لازم برای ساخت اندروید (`dl.google.com` برای Android SDK و
+> Google Maven برای Gradle) تحریم‌اند و ۴۰۴ می‌دهند. پس build روی رانر گیت‌هاب انجام می‌شود
+> که تحریم نیست. برای ساخت لوکال باید VPN روشن باشد (به انتهای فایل نگاه کن).
 
-- Node.js (نصب است)
-- JDK 17 — مثلاً `brew install openjdk@17`
-- Android SDK — Bubblewrap در اولین اجرا خودش پیشنهاد نصب می‌دهد (یا از طریق Android Studio)
+## فایل‌های این پوشه
 
-## مراحل
+| فایل | کارش |
+|------|------|
+| `twa-manifest.json` | کانفیگ کامل اپ (پکیج `ir.nahancafe.app`، هاست، رنگ، آیکون). تنها فایلی که برای تغییر اپ ویرایش می‌کنی. |
+| `generate-project.mjs` | پروژه‌ی اندروید را از روی `twa-manifest.json` می‌سازد (غیرتعاملی، بدون نیاز به گوگل). |
+| `package.json` / `package-lock.json` | وابستگی `@bubblewrap/cli`. |
+| `android.keystore` | کلید امضا. **در گیت نیست** و نباید commit شود. ساخته شده و base64 آن در secretهای گیت‌هاب است. |
 
-### ۱) نصب Bubblewrap
+بقیه‌ی فایل‌ها (`app/`, `build.gradle`, `gradlew`, ...) خروجی تولیدی‌اند و در `.gitignore` هستند —
+در CI از نو ساخته می‌شوند.
 
-```bash
-npm install -g @bubblewrap/cli
-```
+## راه‌اندازی اولیه (یک‌بار)
 
-### ۲) ساخت پروژه‌ی اندروید از روی همین کانفیگ
+سه secret زیر را در گیت‌هاب اضافه کن:
+**Settings → Secrets and variables → Actions → New repository secret**
 
-از داخل پوشه‌ی `twa/`:
+| نام secret | مقدار |
+|-----------|-------|
+| `ANDROID_KEYSTORE_BASE64` | محتوای base64 فایل `android.keystore` |
+| `ANDROID_KEYSTORE_PASSWORD` | رمز کلید امضا |
+| `ANDROID_KEY_PASSWORD` | همان رمز کلید امضا |
 
-```bash
-cd twa
-bubblewrap init --manifest=https://nahancafe.ir/manifest.json
-```
+> اگر زمانی کلید را گم کردی، یک کلید جدید بساز، اثرانگشت SHA-256 جدیدش را در
+> `public/.well-known/assetlinks.json` جایگزین کن و سایت را دوباره دیپلوی کن. بدون کلید اصلی
+> نمی‌توانی اپ منتشرشده در گوگل‌پلی را آپدیت کنی.
 
-> نکته: اگر می‌خواهی به‌جای پرسیدن سؤال‌ها، از کانفیگ آماده‌ی همین ریپو استفاده کنی،
-> هنگام init مقادیر زیر را بده (یا فایل `twa-manifest.json` این پوشه را جایگزین فایلی که
-> Bubblewrap می‌سازد کن، سپس `bubblewrap update` بزن):
-> - Package name: `ir.nahancafe.app`
-> - Host: `nahancafe.ir`
-> - Start URL: `/menu`
+## ساخت APK / AAB
 
-در همین مرحله Bubblewrap یک **کلید امضا** (`android.keystore`) می‌سازد و رمزش را می‌پرسد.
-این کلید را **گم نکن و جایی امن نگه دار** — برای هر آپدیت بعدی اپ به همین کلید نیاز داری.
+1. به تب **Actions** ریپو برو.
+2. workflow با نام **Build Android TWA** را انتخاب کن → **Run workflow**.
+3. بعد از پایان، از بخش **Artifacts** فایل `nahan-twa` را دانلود کن:
+   - `app-release-signed.apk` → نصب مستقیم روی گوشی / توزیع خارج از گوگل‌پلی
+   - `app-release-bundle.aab` → آپلود در گوگل‌پلی
 
-### ۳) گرفتن اثرانگشت SHA-256 کلید امضا
+نصب روی گوشی متصل: `adb install app-release-signed.apk`
 
-```bash
-bubblewrap fingerprint list
-# یا مستقیم با keytool:
-keytool -list -v -keystore ./android.keystore -alias android
-```
+(می‌توانی به‌جای دستی، یک تگ `twa-v*` پوش کنی تا خودکار build شود.)
 
-مقدار `SHA256` را کپی کن (شکلی مثل `AB:CD:12:...`).
+## آپدیت اپ
 
-### ۴) قرار دادن اثرانگشت در سایت
+1. در صورت نیاز `twa-manifest.json` را ویرایش کن و **`appVersionCode` را یک واحد زیاد کن**
+   (و `appVersionName` را).
+2. کامیت و پوش کن، بعد دوباره workflow را اجرا کن.
 
-در فایل [`../public/.well-known/assetlinks.json`](../public/.well-known/assetlinks.json)
-مقدار `REPLACE_WITH_YOUR_SIGNING_KEY_SHA256_FINGERPRINT` را با اثرانگشت مرحله‌ی ۳ جایگزین کن،
-سپس سایت را روی Liara دوباره دیپلوی کن.
+## نکته‌ی گوگل‌پلی (Play App Signing)
 
-بررسی کن که این آدرس درست برمی‌گردد:
+اگر در گوگل‌پلی منتشر کنی و Play App Signing فعال باشد، گوگل با کلید خودش هم اپ را امضا می‌کند.
+آن‌وقت باید اثرانگشت SHA-256ای که در کنسول گوگل‌پلی (*Setup → App integrity*) نشان داده می‌شود
+را **هم** به آرایه‌ی `sha256_cert_fingerprints` در
+[`../public/.well-known/assetlinks.json`](../public/.well-known/assetlinks.json) اضافه کنی.
 
-```bash
-curl https://nahancafe.ir/.well-known/assetlinks.json
-```
+## ساخت لوکال (فقط با VPN)
 
-> این فایل همان چیزی است که نوار آدرس مرورگر را داخل اپ مخفی می‌کند. اگر اثرانگشت اشتباه/خالی
-> باشد، اپ باز می‌شود ولی نوار آدرس کروم بالای صفحه دیده می‌شود.
-
-### ۵) ساخت فایل نصب (APK / AAB)
-
-```bash
-bubblewrap build
-```
-
-خروجی:
-- `app-release-signed.apk` → برای نصب مستقیم روی گوشی (تست) و توزیع خارج از گوگل‌پلی
-- `app-release-bundle.aab` → برای آپلود در گوگل‌پلی
-
-نصب روی گوشی متصل:
-
-```bash
-adb install app-release-signed.apk
-```
-
-## آپدیت‌های بعدی
-
-بعد از تغییر در سایت/منیفست، فقط:
+اگر VPN داری و می‌خواهی روی سیستم خودت build کنی:
 
 ```bash
 cd twa
-bubblewrap update      # همگام‌سازی با کانفیگ
-# appVersionCode را در twa-manifest.json یک واحد زیاد کن
-bubblewrap build
+npm ci
+node generate-project.mjs
+# کلید را در همین پوشه با نام android.keystore قرار بده، سپس:
+export BUBBLEWRAP_KEYSTORE_PASSWORD='...'
+export BUBBLEWRAP_KEY_PASSWORD='...'
+./node_modules/.bin/bubblewrap build --skipPwaValidation
 ```
 
-## نکته‌ی مهم درباره‌ی گوگل‌پلی (Play App Signing)
-
-اگر اپ را در **گوگل‌پلی** منتشر کنی و Play App Signing فعال باشد، گوگل با کلید خودش هم اپ را
-دوباره امضا می‌کند. در آن صورت باید اثرانگشت SHA-256ای که در کنسول گوگل‌پلی
-(بخش *Setup → App integrity*) نمایش داده می‌شود را **هم** به آرایه‌ی
-`sha256_cert_fingerprints` در `assetlinks.json` اضافه کنی (می‌تواند چند اثرانگشت داشته باشد).
+نیازمند JDK 17 و Android SDK (build-tools 34.0.0، platform android-36). bubblewrap مسیرها را از
+`~/.bubblewrap/config.json` می‌خواند.

@@ -1,13 +1,12 @@
 {
-  "name": "twa",
+  "name": "nahan-twa",
   "version": "1.0.0",
-  "description": "این پوشه کانفیگ تبدیل PWA نهان به یک اپ اندرویدی **TWA (Trusted Web Activity)** را نگه می‌دارد. TWA همان سایت `https://nahancafe.ir` را داخل یک اپ اندرویدی واقعی (نصب‌شونده از فایل/گوگل‌پلی) و **بدون نوار آدرس مرورگر** اجرا می‌کند.",
-  "main": "index.js",
+  "description": "Bubblewrap config to build the Nahan PWA into an Android TWA",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate": "node generate-project.mjs",
+    "build": "bubblewrap build --skipPwaValidation"
   },
-  "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "@bubblewrap/cli": "^1.24.1"

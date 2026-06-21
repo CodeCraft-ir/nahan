@@ -43,12 +43,19 @@ next-env.d.ts
 # TWA / Bubblewrap (Android build) — NEVER commit signing keys or build output
 twa/*.keystore
 twa/*.jks
-twa/android.keystore
+twa/*.keystore.b64
 twa/*.apk
 twa/*.aab
-twa/app/
-twa/.gradle/
-twa/build/
 twa/node_modules/
+# Generated Android project (recreated by twa/generate-project.mjs in CI)
+twa/app/
+twa/build/
+twa/.gradle/
+twa/gradle/
+twa/gradlew
+twa/gradlew.bat
+twa/build.gradle
+twa/settings.gradle
+twa/gradle.properties
+twa/manifest-checksum.txt
 twa/store_icon.png
-twa/*.keystore.json
