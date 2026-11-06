@@ -47,6 +47,10 @@ const wpFetchHeaders = {
 
 const WP_FETCH_TIMEOUT_MS = 8000;
 
+const noStoreInit = {
+  cache: "no-store" as RequestCache,
+};
+
 export async function wpFetch<T>(
   path: string,
   params?: WpQueryParams,
@@ -57,14 +61,11 @@ export async function wpFetch<T>(
   try {
     const response = await fetch(url, {
       ...init,
+      ...noStoreInit,
       signal: AbortSignal.timeout(WP_FETCH_TIMEOUT_MS),
       headers: {
         ...wpFetchHeaders,
         ...init?.headers,
-      },
-      next: {
-        revalidate: wpConfig.revalidateSeconds,
-        tags: [`wp:${path.split("?")[0]}`],
       },
     });
 
@@ -96,14 +97,11 @@ export async function wpFetchAllPages<T>(
 
       const response = await fetch(url, {
         ...init,
+        ...noStoreInit,
         signal: AbortSignal.timeout(WP_FETCH_TIMEOUT_MS),
         headers: {
           ...wpFetchHeaders,
           ...init?.headers,
-        },
-        next: {
-          revalidate: wpConfig.revalidateSeconds,
-          tags: [`wp:${path}`],
         },
       });
 

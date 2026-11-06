@@ -2,17 +2,17 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+
   images: {
+    unoptimized: true,
+
     remotePatterns: [
       {
         protocol: "https",
         hostname: "api.nahancafe.ir",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "**.nahancafe.ir",
-        pathname: "/**",
+        port: "",
+        pathname: "/wp-content/uploads/**",
+        search: "",
       },
     ],
   },

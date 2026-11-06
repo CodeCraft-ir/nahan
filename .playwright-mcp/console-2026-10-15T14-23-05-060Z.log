@@ -1,0 +1,1 @@
+[    2797ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://nahancafe.ir/:0

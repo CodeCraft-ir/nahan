@@ -91,6 +91,7 @@ export function MenuSections({
           }}
           className="scroll-mt-[196px]"
         >
+          <h3 className="border-b border-narhan-accent/30 mt-4 px-6 text-narhan-accent mb-1">{category.label}</h3>
           {items.length > 0 ? (
             items.map((item) => <MenuItemRow key={item.id} item={item} />)
           ) : (

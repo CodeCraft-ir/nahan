@@ -3,7 +3,7 @@ import { getEventById } from "@/lib/wordpress/services/eventDetail";
 import { EventDetailView } from "@/components/events/EventDetailView";
 import { designTokens } from "@/lib/design-tokens";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ id: string }>;

@@ -23,7 +23,7 @@ export function EventsPageContent({
     return byCat.length > 0 ? byCat : items;
   }, [activeCategory, items]);
 
-  if (categories.length === 0) {
+  if (items.length === 0) {
     return (
       <p className="px-4 py-10 text-center text-sm text-narhan-muted">
         رویدادی ثبت نشده است.

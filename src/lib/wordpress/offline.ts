@@ -1,4 +1,4 @@
-/** وقتی true باشد، داده از وردپرس نیامده و نسخهٔ آفلاین/نمونه نشان داده می‌شود. */
+/** وقتی true باشد، اتصال به وردپرس برقرار نشده و دادهٔ زنده در دسترس نیست. */
 export type WithOfflineFlag<T> = T & { isOffline: boolean };
 
 export function offlineResult<T>(data: T): WithOfflineFlag<T> {

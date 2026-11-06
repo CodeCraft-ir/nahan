@@ -347,6 +347,10 @@ function nahan_api_get_gallery_woocommerce() {
         }
     }
 
+    if (empty($result)) {
+        return nahan_api_get_gallery_cpt();
+    }
+
     return new WP_REST_Response($result, 200);
 }
 

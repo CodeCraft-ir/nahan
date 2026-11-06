@@ -1,11 +1,9 @@
 {
-  "build": {
-    "location": "iran"
-  },
-  "app": "nahancafe",
-  "platform": "next",
-  "port": 3000,
-  "next": {
-    "modifyConfig": false
-  }
+  
+"app":"karban",
+"port":3000,
+"build":{
+"location":"iran"
+},
+"disks":[]
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "narhan-v1";
+const CACHE_NAME = "narhan-v2";
 const STATIC_ASSETS = [
   "/icons/logo.svg",
   "/fonts/modam/ModamFaNumWeb-Regular.woff2",
@@ -33,18 +33,8 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
+  if (!STATIC_ASSETS.includes(url.pathname)) return;
 
-  // صفحات HTML و Next.js رو کاملاً رها کن
-  if (
-    url.pathname.startsWith("/_next/") ||
-    url.pathname.startsWith("/wp-json/") ||
-    url.pathname.startsWith("/api/") ||
-    event.request.headers.get("accept")?.includes("text/html")
-  ) {
-    return;
-  }
-
-  // فقط assets استاتیک: cache-first
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;

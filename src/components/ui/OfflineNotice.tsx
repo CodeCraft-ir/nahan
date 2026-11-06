@@ -19,7 +19,7 @@ export function OfflineNotice({ className = "" }: OfflineNoticeProps) {
       <div>
         <p className="font-medium">اتصال به سرور برقرار نیست</p>
         <p className="mt-0.5 text-xs text-amber-200/80">
-          در حال نمایش داده‌های آفلاین (نمونه)
+          داده‌ای نمایش داده نمی‌شود تا اتصال برقرار شود.
         </p>
       </div>
 

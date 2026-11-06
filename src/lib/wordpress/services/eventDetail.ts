@@ -21,10 +21,10 @@ export async function getEventById(id: string): Promise<EventItemDetail | null> 
   if (wpConfig.skipWordPressApi) return null;
 
   const groups = await wpFetch<NahanEventGroup[]>("/nahan/v1/events");
-  if (!groups?.length) return null;
+  if (!Array.isArray(groups) || !groups.length) return null;
 
   for (const group of groups) {
-    const found = group.items.find((item) => item.id === id);
+    const found = (group.items ?? []).find((item) => item.id === id);
     if (found) {
       return {
         id: found.id,

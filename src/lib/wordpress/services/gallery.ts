@@ -1,4 +1,3 @@
-import { GALLERY_ITEMS } from "@/lib/data/gallery";
 import type { GalleryCategory, GalleryItem } from "@/lib/types";
 import { wpFetch } from "@/lib/wordpress/client";
 import { wpConfig } from "@/lib/wordpress/config";
@@ -20,8 +19,8 @@ export type GalleryDataResult = WithOfflineFlag<{
 }>;
 
 interface NahanGalleryGroup {
-  category: { id: string; label: string };
-  items: {
+  category?: { id?: string; label?: string };
+  items?: {
     id: string;
     title: string;
     image: string;
@@ -30,27 +29,27 @@ interface NahanGalleryGroup {
   }[];
 }
 
-export async function getGalleryData(): Promise<GalleryDataResult> {
-  if (wpConfig.skipWordPressApi) {
-    return offlineResult({ categories: [], items: GALLERY_ITEMS });
-  }
+function emptyGallery(): { categories: GalleryCategory[]; items: GalleryItem[] } {
+  return { categories: [], items: [] };
+}
 
-  const groups = await wpFetch<NahanGalleryGroup[]>("/nahan/v1/gallery");
-
-  if (!groups?.length) {
-    return offlineResult({ categories: [], items: GALLERY_ITEMS });
-  }
-
+function mapGalleryGroups(groups: NahanGalleryGroup[]) {
   const categories: GalleryCategory[] = [];
   const items: GalleryItem[] = [];
 
   for (const group of groups) {
-    if (!group.items.length) continue;
-    categories.push({ id: group.category.id, label: group.category.label });
-    for (const item of group.items) {
+    const categoryId = group.category?.id;
+    const categoryLabel = group.category?.label;
+    if (!categoryId || !categoryLabel) continue;
+
+    const groupItems = Array.isArray(group.items) ? group.items : [];
+    categories.push({ id: categoryId, label: categoryLabel });
+
+    for (const item of groupItems) {
+      if (!item?.id || !item.title) continue;
       items.push({
         id: item.id,
-        categoryId: group.category.id,
+        categoryId,
         title: item.title,
         ...(item.image ? { image: item.image } : {}),
         ...(item.price != null ? { price: String(item.price) } : {}),
@@ -59,9 +58,19 @@ export async function getGalleryData(): Promise<GalleryDataResult> {
     }
   }
 
-  if (!categories.length) {
-    return offlineResult({ categories: [], items: GALLERY_ITEMS });
+  return { categories, items };
+}
+
+export async function getGalleryData(): Promise<GalleryDataResult> {
+  if (wpConfig.skipWordPressApi) {
+    return offlineResult(emptyGallery());
   }
 
-  return onlineResult({ categories, items });
+  const groups = await wpFetch<NahanGalleryGroup[]>("/nahan/v1/gallery");
+
+  if (!Array.isArray(groups)) {
+    return offlineResult(emptyGallery());
+  }
+
+  return onlineResult(mapGalleryGroups(groups));
 }

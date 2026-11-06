@@ -9,7 +9,7 @@ export const wpConfig = {
   siteUrl,
   apiBase: `${siteUrl}/wp-json`,
 
-  revalidateSeconds: Number(process.env.WP_REVALIDATE_SECONDS ?? 300),
+  revalidateSeconds: 0,
 
   postTypes: {
     menuItems: process.env.WP_MENU_POST_TYPE ?? "cmenu-items",
@@ -27,7 +27,7 @@ export const wpConfig = {
     consumerSecret: process.env.WC_CONSUMER_SECRET,
   },
 
-  /** بدون تماس با API؛ فقط دادهٔ نمونه با پرچم آفلاین */
+  /** بدون تماس با API؛ لیست خالی با پرچم آفلاین (بدون دادهٔ نمونه) */
   skipWordPressApi: process.env.WP_USE_STATIC_FALLBACK === "true",
 } as const;
 

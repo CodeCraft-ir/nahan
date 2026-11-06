@@ -1,0 +1,9 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - img "فضای داخلی کافه نهان" [ref=e7]
+    - generic [ref=e9]:
+      - paragraph [ref=e10]: صفائیه، کوچه ۳۲، فرعی اول، شماره ۱۲۸
+      - paragraph [ref=e11]: Nahan | Café-gallery
+    - link "رفتن به منو" [ref=e13] [cursor=pointer]:
+      - /url: /menu
+  - alert [ref=e16]

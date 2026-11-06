@@ -1,5 +1,3 @@
-import { EVENT_CATEGORIES } from "@/lib/data/navigation";
-import { EVENT_ITEMS } from "@/lib/data/events";
 import type { EventCategory, EventItem } from "@/lib/types";
 import { wpFetch } from "@/lib/wordpress/client";
 import { wpConfig } from "@/lib/wordpress/config";
@@ -18,8 +16,8 @@ export interface EventsData {
 export type EventsDataResult = WithOfflineFlag<Omit<EventsData, "isOffline">>;
 
 interface NahanEventGroup {
-  category: { id: string; label: string };
-  items: {
+  category?: { id?: string; label?: string };
+  items?: {
     id: string;
     title: string;
     description: string;
@@ -32,10 +30,6 @@ interface NahanEventGroup {
   }[];
 }
 
-function getStaticEventsData(): Omit<EventsData, "isOffline"> {
-  return { categories: EVENT_CATEGORIES, items: EVENT_ITEMS };
-}
-
 function formatSubtitle(date: string, time: string): string {
   if (!date) return "";
   const parts = [date];
@@ -43,37 +37,47 @@ function formatSubtitle(date: string, time: string): string {
   return parts.join(" — ");
 }
 
-export async function getEventsData(): Promise<EventsDataResult> {
-  if (wpConfig.skipWordPressApi) {
-    return offlineResult(getStaticEventsData());
-  }
+function emptyEvents(): Omit<EventsData, "isOffline"> {
+  return { categories: [], items: [] };
+}
 
-  const groups = await wpFetch<NahanEventGroup[]>("/nahan/v1/events");
-
-  if (!groups?.length) {
-    return offlineResult(getStaticEventsData());
-  }
-
+function mapEventGroups(groups: NahanEventGroup[]): Omit<EventsData, "isOffline"> {
   const categories: EventCategory[] = [];
   const items: EventItem[] = [];
 
   for (const group of groups) {
-    if (!group.items.length) continue;
-    categories.push({ id: group.category.id, label: group.category.label });
-    for (const item of group.items) {
+    const categoryId = group.category?.id;
+    const categoryLabel = group.category?.label;
+    if (!categoryId || !categoryLabel) continue;
+
+    const groupItems = Array.isArray(group.items) ? group.items : [];
+    categories.push({ id: categoryId, label: categoryLabel });
+
+    for (const item of groupItems) {
+      if (!item?.id || !item.title) continue;
       items.push({
         id: item.id,
-        categoryId: group.category.id,
+        categoryId,
         title: item.title,
-        subtitle: formatSubtitle(item.date, item.time),
+        subtitle: formatSubtitle(item.date ?? "", item.time ?? ""),
         ...(item.image ? { image: item.image } : {}),
       });
     }
   }
 
-  if (!categories.length) {
-    return offlineResult(getStaticEventsData());
+  return { categories, items };
+}
+
+export async function getEventsData(): Promise<EventsDataResult> {
+  if (wpConfig.skipWordPressApi) {
+    return offlineResult(emptyEvents());
   }
 
-  return onlineResult({ categories, items });
+  const groups = await wpFetch<NahanEventGroup[]>("/nahan/v1/events");
+
+  if (!Array.isArray(groups)) {
+    return offlineResult(emptyEvents());
+  }
+
+  return onlineResult(mapEventGroups(groups));
 }

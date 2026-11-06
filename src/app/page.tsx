@@ -1,6 +1,6 @@
 import { HomeScrollPage } from "@/components/home/HomeScrollPage";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   return <HomeScrollPage />;

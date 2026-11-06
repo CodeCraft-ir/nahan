@@ -1,5 +1,3 @@
-import { MENU_CATEGORIES } from "@/lib/data/navigation";
-import { getMenuGroupedByCategory, MENU_ITEMS } from "@/lib/data/menu";
 import type { MenuCategory, MenuItem } from "@/lib/types";
 import { wpFetch } from "@/lib/wordpress/client";
 import { wpConfig } from "@/lib/wordpress/config";
@@ -19,8 +17,8 @@ export interface MenuData {
 export type MenuDataResult = WithOfflineFlag<Omit<MenuData, "isOffline">>;
 
 interface NahanMenuGroup {
-  category: { id: string; label: string };
-  items: {
+  category?: { id?: string; label?: string };
+  items?: {
     id: string;
     title: string;
     description: string;
@@ -31,58 +29,59 @@ interface NahanMenuGroup {
 }
 
 function parsePrice(raw: string): number {
-  return Number(raw.replace(/[^0-9]/g, "")) || 0;
+  return Number(String(raw).replace(/[^0-9]/g, "")) || 0;
 }
 
-function getStaticMenuData(): Omit<MenuData, "isOffline"> {
-  return {
-    categories: MENU_CATEGORIES,
-    items: MENU_ITEMS,
-    groups: getMenuGroupedByCategory(),
-  };
+function emptyMenu(): Omit<MenuData, "isOffline"> {
+  return { categories: [], items: [], groups: [] };
+}
+
+function mapMenuGroups(groups: NahanMenuGroup[]): Omit<MenuData, "isOffline"> {
+  const categories: MenuCategory[] = [];
+  const items: MenuItem[] = [];
+  const mappedGroups: MenuData["groups"] = [];
+
+  for (const group of groups) {
+    const categoryId = group.category?.id;
+    const categoryLabel = group.category?.label;
+    if (!categoryId || !categoryLabel) continue;
+
+    const category = { id: categoryId, label: categoryLabel };
+    const groupItems: MenuItem[] = [];
+    const sourceItems = Array.isArray(group.items) ? group.items : [];
+
+    categories.push(category);
+
+    for (const item of sourceItems) {
+      if (!item?.id || !item.title) continue;
+      const mapped: MenuItem = {
+        id: item.id,
+        categoryId,
+        title: item.title,
+        description: item.description ?? "",
+        price: parsePrice(item.price ?? ""),
+        image: item.image || "",
+      };
+      items.push(mapped);
+      groupItems.push(mapped);
+    }
+
+    mappedGroups.push({ category, items: groupItems });
+  }
+
+  return { categories, items, groups: mappedGroups };
 }
 
 export async function getMenuData(): Promise<MenuDataResult> {
   if (wpConfig.skipWordPressApi) {
-    return offlineResult(getStaticMenuData());
+    return offlineResult(emptyMenu());
   }
 
   const groups = await wpFetch<NahanMenuGroup[]>("/nahan/v1/menu");
 
-  if (!groups?.length) {
-    return offlineResult(getStaticMenuData());
+  if (!Array.isArray(groups)) {
+    return offlineResult(emptyMenu());
   }
 
-  const categories: MenuCategory[] = [];
-  const items: MenuItem[] = [];
-
-  for (const group of groups) {
-    categories.push({ id: group.category.id, label: group.category.label });
-    for (const item of group.items) {
-      items.push({
-        id: item.id,
-        categoryId: group.category.id,
-        title: item.title,
-        description: item.description,
-        price: parsePrice(item.price),
-        image: item.image || "",
-      });
-    }
-  }
-
-  return onlineResult({
-    categories,
-    items,
-    groups: groups.map((g) => ({
-      category: { id: g.category.id, label: g.category.label },
-      items: g.items.map((item) => ({
-        id: item.id,
-        categoryId: g.category.id,
-        title: item.title,
-        description: item.description,
-        price: parsePrice(item.price),
-        image: item.image || "",
-      })),
-    })),
-  });
+  return onlineResult(mapMenuGroups(groups));
 }

@@ -3,7 +3,7 @@ import { getGalleryItemById } from "@/lib/wordpress/services/galleryDetail";
 import { GalleryItemDetailView } from "@/components/gallery/GalleryItemDetailView";
 import { designTokens } from "@/lib/design-tokens";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ id: string }>;
